@@ -10,11 +10,8 @@ export interface LocationKeywordRanking {
 } // ===== Type Definitions =====
 export interface KeywordSearchVolume {
     keyword: string;
-    dma: string;
     city: string;
     monthlySearchVolume: number;
-    competition: 'low' | 'medium' | 'high';
-    cpc: number;
 }
 
 export interface DomainKeyword {

@@ -12,11 +12,8 @@ export class MockDataProvider {
     static getKeywordSearchVolume(keyword: string, city: string): KeywordSearchVolume {
         return {
             keyword,
-            dma: `${city} Metropolitan Area`,
             city,
             monthlySearchVolume: Math.floor(Math.random() * 10000),
-            competition: ['low', 'medium', 'high'][Math.floor(Math.random() * 3)] as 'low' | 'medium' | 'high',
-            cpc: parseFloat((Math.random() * 5).toFixed(2))
         };
     }
 

@@ -1,7 +1,6 @@
 // index.ts
 import { McpAgent } from "agents/mcp";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { z } from "zod";
 import app from "./app";
 import { LocAIService, ToolMap } from "./methods";
 
@@ -18,11 +17,6 @@ export class MyMCP extends McpAgent {
   });
 
   async init() {
-    // Add the original simple tool
-    this.server.tool("add", { a: z.number(), b: z.number() }, async ({ a, b }) => ({
-      content: [{ type: "text", text: String(a + b) }],
-    }));
-
     // Type-safe iteration over the tools
     Object.keys(LocAIService.tools).forEach((key) => {
       const toolKey = key as keyof ToolMap;

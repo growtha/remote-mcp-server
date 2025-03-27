@@ -2,8 +2,7 @@
 import {z} from "zod";
 import {MockDataProvider} from "./mock";
 import {DomainKeyword, DomainLocation, DomainRanking, KeywordSearchVolume, LocationKeywordRanking} from "./types";
-// methods.ts
-
+import {DataProvider} from "./api";
 
 // Define a more specific ToolDefinition type that uses Zod for schema and type inference
 export interface ToolDefinition<TParams> {
@@ -57,7 +56,7 @@ export class LocAIService {
       description: "Get search volume of a given keyword in a given city's DMA",
       schema: keywordSearchVolumeSchema,
       method: async (params: KeywordSearchVolumeParams): Promise<KeywordSearchVolume> => {
-        return MockDataProvider.getKeywordSearchVolume(params.keyword, params.city);
+        return DataProvider.getKeywordSearchVolume(params.keyword, params.city);
       },
       formatResult: (params: KeywordSearchVolumeParams, result: KeywordSearchVolume): string => {
         return `Search volume data for "${params.keyword}" in ${params.city}:\n${JSON.stringify(result, null, 2)}`;
