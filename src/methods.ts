@@ -1,7 +1,7 @@
 // methods.ts
 import {z} from "zod";
 import {MockDataProvider} from "./mock";
-import {DomainKeyword, DomainLocation, DomainRanking, KeywordSearchVolume, LocationKeywordRanking} from "./types";
+import {DomainKeywords, DomainLocation, DomainRanking, KeywordSearchVolume, LocationKeywordRanking} from "./types";
 import {DataProvider} from "./api";
 
 // Define a more specific ToolDefinition type that uses Zod for schema and type inference
@@ -13,11 +13,9 @@ export interface ToolDefinition<TParams> {
   formatResult: (params: TParams, result: any) => string;
 }
 
-
-// Define schema objects first, with proper primitive return types
-const keywordSearchVolumeSchema = {
-  keyword: z.string().describe("Keyword to get search volume for"),
-  city: z.string().describe("City name to check search volume in"),
+const keywordsSearchVolumeSchema = {
+  keywords: z.array(z.string()).describe("Keywords to get search volume for"),
+  location_name: z.string().describe("Location name to check search volume in"),
 };
 
 const domainSchema = {
@@ -30,14 +28,14 @@ const locationRankingsSchema = {
 };
 
 // Define types based on Zod schemas
-type KeywordSearchVolumeParams = z.infer<z.ZodObject<typeof keywordSearchVolumeSchema>>;
+type KeywordsSearchVolumeParams = z.infer<z.ZodObject<typeof keywordsSearchVolumeSchema>>;
 type DomainParams = z.infer<z.ZodObject<typeof domainSchema>>;
 type LocationRankingsParams = z.infer<z.ZodObject<typeof locationRankingsSchema>>;
 
 // Create a map type for our tools with correct schema and return types
 // Create a map type for our tools
 export type ToolMap = {
-  getKeywordSearchVolume: ToolDefinition<KeywordSearchVolumeParams>;
+  getKeywordsSearchVolume: ToolDefinition<KeywordsSearchVolumeParams>;
   getDomainKeywords: ToolDefinition<DomainParams>;
   getDomainLocations: ToolDefinition<DomainParams>;
   getDomainRankings: ToolDefinition<DomainParams>;
@@ -51,15 +49,15 @@ export class LocAIService {
 
   // Define tool definitions with schemas, methods, and formatters
   static tools: ToolMap = {
-    getKeywordSearchVolume: {
-      name: "get_keyword_search_volume",
-      description: "Get search volume of a given keyword in a given city's DMA",
-      schema: keywordSearchVolumeSchema,
-      method: async (params: KeywordSearchVolumeParams): Promise<KeywordSearchVolume> => {
-        return DataProvider.getKeywordSearchVolume(params.keyword, params.city);
+    getKeywordsSearchVolume: {
+      name: "get_keywords_search_volume",
+      description: "Get search volume of given keywords in a given location_name",
+      schema: keywordsSearchVolumeSchema,
+      method: async (params: KeywordsSearchVolumeParams): Promise<Record<string, number>> => {
+        return DataProvider.getKeywordsSearchVolume(params.keywords, params.location_name);
       },
-      formatResult: (params: KeywordSearchVolumeParams, result: KeywordSearchVolume): string => {
-        return `Search volume data for "${params.keyword}" in ${params.city}:\n${JSON.stringify(result, null, 2)}`;
+      formatResult: (params: KeywordsSearchVolumeParams, result: Record<string, number>): string => {
+        return `Search volume data for "${params.keywords}" in ${params.location_name}:\n${JSON.stringify(result, null, 2)}`;
       }
     },
 
@@ -67,10 +65,10 @@ export class LocAIService {
       name: "get_domain_keywords",
       description: "Get keywords for a given domain",
       schema: domainSchema,
-      method: async (params: DomainParams): Promise<DomainKeyword[]> => {
-        return MockDataProvider.getDomainKeywords(params.domain);
+      method: async (params: DomainParams): Promise<DomainKeywords> => {
+        return DataProvider.getDomainKeywords(params.domain);
       },
-      formatResult: (params: DomainParams, result: DomainKeyword[]): string => {
+      formatResult: (params: DomainParams, result: DomainKeywords): string => {
         return `Keywords for "${params.domain}":\n${JSON.stringify(result, null, 2)}`;
       }
     },

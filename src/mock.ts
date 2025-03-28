@@ -1,6 +1,6 @@
 // ===== Mock Data Provider =====
 import {
-    DomainKeyword,
+    DomainKeywords,
     DomainLocation,
     DomainRanking,
     GMBRating,
@@ -9,30 +9,30 @@ import {
 } from "./types";
 
 export class MockDataProvider {
-    static getKeywordSearchVolume(keyword: string, city: string): KeywordSearchVolume {
-        return {
-            keyword,
-            city,
-            monthlySearchVolume: Math.floor(Math.random() * 10000),
-        };
-    }
+    // static getKeywordSearchVolume(keyword: string, city: string): KeywordSearchVolume {
+    //     return {
+    //         keyword,
+    //         city,
+    //         monthlySearchVolume: Math.floor(Math.random() * 10000),
+    //     };
+    // }
 
-    static getDomainKeywords(domain: string): DomainKeyword[] {
-        const keywords = [
-            'seo services', 'local seo', 'digital marketing', 'web design', 'ppc advertising',
-            'content marketing', 'social media marketing', 'email marketing', 'reputation management',
-            'conversion optimization'
-        ];
-
-        return keywords.map(keyword => ({
-            keyword,
-            position: Math.floor(Math.random() * 100) + 1,
-            searchVolume: Math.floor(Math.random() * 10000),
-            cpc: parseFloat((Math.random() * 5).toFixed(2)),
-            competition: ['low', 'medium', 'high'][Math.floor(Math.random() * 3)] as 'low' | 'medium' | 'high',
-            difficulty: Math.floor(Math.random() * 100)
-        }));
-    }
+    // static getDomainKeywords(domain: string): DomainKeywords[] {
+    //     const keywords = [
+    //         'seo services', 'local seo', 'digital marketing', 'web design', 'ppc advertising',
+    //         'content marketing', 'social media marketing', 'email marketing', 'reputation management',
+    //         'conversion optimization'
+    //     ];
+    //
+    //     return keywords.map(keyword => ({
+    //         keyword,
+    //         position: Math.floor(Math.random() * 100) + 1,
+    //         searchVolume: Math.floor(Math.random() * 10000),
+    //         cpc: parseFloat((Math.random() * 5).toFixed(2)),
+    //         competition: ['low', 'medium', 'high'][Math.floor(Math.random() * 3)] as 'low' | 'medium' | 'high',
+    //         difficulty: Math.floor(Math.random() * 100)
+    //     }));
+    // }
 
     static getDomainLocations(domain: string): DomainLocation[] {
         const cities = [

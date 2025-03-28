@@ -14,13 +14,12 @@ export interface KeywordSearchVolume {
     monthlySearchVolume: number;
 }
 
-export interface DomainKeyword {
-    keyword: string;
-    position: number;
-    searchVolume: number;
-    cpc: number;
-    competition: 'low' | 'medium' | 'high';
-    difficulty: number;
+
+
+export interface DomainKeywords {
+    keywords: string[];
+    confidence: number; // float
+    industry: string;
 }
 
 export interface DomainLocation {
