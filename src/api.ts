@@ -2,6 +2,37 @@ import {DomainKeywords} from "./types";
 
 export class DataProvider {
 
+    static async getDomainLocations(domain: string): Promise<string[]> {
+        const response = await fetch("https://growtha-platform-g159.onrender.com/api/v1/mcp/find-locations", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json; charset=utf-8"
+            },
+            body: JSON.stringify({ domain })
+        });
+
+        if (!response.ok) {
+            throw new Error(`API error: ${response.statusText}`);
+        }
+
+        return await response.json();
+    }
+
+    static async getDomainAudit(domain: string): Promise<string> {
+        const response = await fetch("https://growtha-platform-g159.onrender.com/api/v1/mcp/audit", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json; charset=utf-8"
+            },
+            body: JSON.stringify({ domain })
+        });
+
+        if (!response.ok) {
+            throw new Error(`API error: ${response.statusText}`);
+        }
+        return await response.json();
+    }
+
     static async getDomainKeywords(domain: string): Promise<DomainKeywords> {
         const response = await fetch("https://growtha-platform-g159.onrender.com/api/v1/mcp/get-domain-industry", {
             method: "POST",

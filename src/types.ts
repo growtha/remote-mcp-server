@@ -14,42 +14,12 @@ export interface KeywordSearchVolume {
     monthlySearchVolume: number;
 }
 
-
-
 export interface DomainKeywords {
     keywords: string[];
     confidence: number; // float
     industry: string;
 }
 
-export interface DomainLocation {
-    id: string;
-    name: string;
-    address: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    dma: string;
-    latitude: number;
-    longitude: number;
-    phone: string;
-    website: string;
-}
 
 export type GMBRating = 'good' | 'average' | 'poor';
 
-export interface DomainRanking {
-    domain: string;
-    overallRank: number;
-    organicVisibility: number;
-    organicKeywords: number;
-    paidVisibility: number;
-    paidKeywords: number;
-    backlinks: number;
-    gmbRating: GMBRating;
-    localRankings: {
-        dma: string;
-        position: number;
-        keywordCount: number;
-    }[];
-}

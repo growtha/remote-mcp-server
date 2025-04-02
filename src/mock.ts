@@ -58,7 +58,7 @@ export class MockDataProvider {
         }));
     }
 
-    static getDomainRankings(domain: string): DomainRanking {
+    static getDomainAudit(domain: string): DomainRanking {
         const dmas = ['New York DMA', 'Los Angeles DMA', 'Chicago DMA', 'Houston DMA', 'Phoenix DMA'];
 
         return {
