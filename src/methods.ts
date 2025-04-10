@@ -93,7 +93,7 @@ export class LocAIService {
                 return DataProvider.getDomainAudit(params.domain);
             },
             formatResult: (params: DomainParams, result: string): string => {
-                return `Audit for "${params.domain}":\n${result}`;
+                return `Audit for "${params.domain}":\n${result} will be available in a few moments. Check the URL in a few minutes.`;
             }
         },
 

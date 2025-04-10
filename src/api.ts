@@ -24,7 +24,7 @@ export class DataProvider {
             headers: {
                 "Content-Type": "application/json; charset=utf-8"
             },
-            body: JSON.stringify({ domain })
+            body: JSON.stringify({ domain, in_worker: true })
         });
 
         if (!response.ok) {
