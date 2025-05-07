@@ -53,10 +53,27 @@ export default {
   fetch: async (request: Request, env: Env, ctx: ExecutionContext): Promise<Response> => {
     // Check if the request is for the MCP endpoint
     if (request.url.includes("/sse")) {
+      const apiKey = request.headers.get("Authorization")?.replace("Bearer ", "")
+
+      console.log("apiKey", apiKey);
+
       return MyMCP.mount("/sse").fetch(request, env, {
         ...ctx,
         props: {
-          apiKey: request.headers.get("Authorization")?.replace("Bearer ", ""),
+          apiKey,
+        }
+      });
+    }
+
+    if (request.url.includes("/mcp")) {
+      const apiKey = request.headers.get("Authorization")?.replace("Bearer ", "")
+
+      console.log("apiKey", apiKey);
+      
+      return MyMCP.serve('/mcp').fetch(request, env, {
+        ...ctx,
+        props: {
+          apiKey,
         }
       });
     }
