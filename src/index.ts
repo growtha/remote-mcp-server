@@ -10,17 +10,19 @@ interface Env {
   // Add your environment variables and bindings here
 }
 
-export class MyMCP extends McpAgent {
+export class MyMCP extends McpAgent<Env, unknown, { apiKey: string }> {
   server = new McpServer({
     name: "Loc AI SEO Analytics",
     version: "1.0.0",
   });
 
   async init() {
+    const service = new LocAIService(this.props.apiKey);
+
     // Type-safe iteration over the tools
-    Object.keys(LocAIService.tools).forEach((key) => {
+    Object.keys(service.tools).forEach((key) => {
       const toolKey = key as keyof ToolMap;
-      const tool = LocAIService.tools[toolKey];
+      const tool = service.tools[toolKey];
 
       this.server.tool(
         tool.name,
@@ -51,7 +53,23 @@ export default {
   fetch: async (request: Request, env: Env, ctx: ExecutionContext): Promise<Response> => {
     // Check if the request is for the MCP endpoint
     if (request.url.includes("/sse")) {
-      return MyMCP.mount("/sse").fetch(request, env, ctx);
+      const apiKey = request.headers.get("Authorization")?.replace("Bearer ", "")
+      return MyMCP.mount("/sse").fetch(request, env, {
+        ...ctx,
+        props: {
+          apiKey,
+        }
+      });
+    }
+
+    if (request.url.includes("/mcp")) {
+      const apiKey = request.headers.get("Authorization")?.replace("Bearer ", "")
+      return MyMCP.serve('/mcp').fetch(request, env, {
+        ...ctx,
+        props: {
+          apiKey,
+        }
+      });
     }
 
     // Otherwise, pass to your app
