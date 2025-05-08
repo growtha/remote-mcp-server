@@ -2,9 +2,7 @@ import {DomainKeywords} from "./types";
 
 export class DataProvider {
 
-    constructor(private apiKey: string) {
-        this.apiKey = apiKey;
-    }   
+    constructor(private apiKey: string) { }   
 
     async getDomainLocations(domain: string): Promise<string[]> {
         const response = await fetch("https://growtha-platform-g159.onrender.com/api/v1/mcp/find-locations", {
