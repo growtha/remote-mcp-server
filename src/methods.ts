@@ -44,17 +44,23 @@ export type ToolMap = {
 
 // ===== API Service Layer with Tool Definitions =====
 export class LocAIService {
-    private static API_KEY = '';
     private static BASE_URL = 'https://api.loc.ai/v1';
 
+    private dataProvider: DataProvider;
+
+    constructor(private apiKey: string) {
+        this.dataProvider = new DataProvider(this.apiKey);
+    }
+
     // Define tool definitions with schemas, methods, and formatters
-    static tools: ToolMap = {
+    tools: ToolMap = {
         getKeywordsSearchVolume: {
             name: "get_keywords_search_volume",
             description: "Get search volume of given keywords in a given location_name",
             schema: keywordsSearchVolumeSchema,
             method: async (params: KeywordsSearchVolumeParams): Promise<Record<string, number>> => {
-                return DataProvider.getKeywordsSearchVolume(params.keywords, params.location_name);
+                console.log("getKeywordsSearchVolume", params);
+                return this.dataProvider.getKeywordsSearchVolume(params.keywords, params.location_name);
             },
             formatResult: (params: KeywordsSearchVolumeParams, result: Record<string, number>): string => {
                 return `Search volume data for "${params.keywords}" in ${params.location_name}:\n${JSON.stringify(result, null, 2)}`;
@@ -66,7 +72,7 @@ export class LocAIService {
             description: "Get keywords for a given domain",
             schema: domainSchema,
             method: async (params: DomainParams): Promise<DomainKeywords> => {
-                return DataProvider.getDomainKeywords(params.domain);
+                return this.dataProvider.getDomainKeywords(params.domain);
             },
             formatResult: (params: DomainParams, result: DomainKeywords): string => {
                 return `Keywords for "${params.domain}":\n${JSON.stringify(result, null, 2)}`;
@@ -78,7 +84,7 @@ export class LocAIService {
             description: "Get all locations of a given domain",
             schema: domainSchema,
             method: async (params: DomainParams): Promise<string[]> => {
-                return DataProvider.getDomainLocations(params.domain);
+                return this.dataProvider.getDomainLocations(params.domain);
             },
             formatResult: (params: DomainParams, result: string[]): string => {
                 return `Locations for "${params.domain}":\n${JSON.stringify(result, null, 2)}`;
@@ -90,7 +96,7 @@ export class LocAIService {
             description: "Get audit of a given domain name",
             schema: domainSchema,
             method: async (params: DomainParams): Promise<string> => {
-                return DataProvider.getDomainAudit(params.domain);
+                return this.dataProvider.getDomainAudit(params.domain);
             },
             formatResult: (params: DomainParams, result: string): string => {
                 return `Audit for "${params.domain}":\n${result} will be available in a few moments. Check the URL in a few minutes.`;
