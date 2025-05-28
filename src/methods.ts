@@ -1,7 +1,7 @@
 // methods.ts
 import {z} from "zod";
 import {MockDataProvider} from "./mock";
-import {DomainKeywords, LocationKeywordRanking} from "./types";
+import type {DomainKeywords, LocationKeywordRanking} from "./types";
 import {DataProvider} from "./api";
 
 // Define a more specific ToolDefinition type that uses Zod for schema and type inference
@@ -13,39 +13,45 @@ export interface ToolDefinition<TParams> {
     formatResult: (params: TParams, result: any) => string;
 }
 
-const keywordsSearchVolumeSchema = {
+const keywordsSearchVolumeSchema = z.object({
     keywords: z.array(z.string()).describe("Keywords to get search volume for"),
     location_name: z.string().describe("Location name to check search volume in"),
-};
+});
 
-const domainSchema = {
+const domainSchema = z.object({
     domain: z.string().describe("Domain name to get keywords for"),
-};
+});
 
-const locationRankingsSchema = {
+const auditSchema = z.object({
+    domain: z.string().describe("Domain name to get audit for"),
+    keywords: z.array(z.string()).min(1).describe("Keywords to get audit for"),
+    locations: z.array(z.string()).min(1).describe("Locations to get audit for"),
+});
+
+const locationRankingsSchema = z.object({
     location: z.string().describe("Location name"),
     dma: z.string().describe("DMA (Designated Market Area)"),
-};
+});
 
 // Define types based on Zod schemas
-type KeywordsSearchVolumeParams = z.infer<z.ZodObject<typeof keywordsSearchVolumeSchema>>;
-type DomainParams = z.infer<z.ZodObject<typeof domainSchema>>;
-type LocationRankingsParams = z.infer<z.ZodObject<typeof locationRankingsSchema>>;
+type KeywordsSearchVolumeParams = z.infer<typeof keywordsSearchVolumeSchema>;
+type DomainParams = z.infer<typeof domainSchema>;
+type LocationRankingsParams = z.infer<typeof locationRankingsSchema>;
+type AuditParams = z.infer<typeof auditSchema>;
 
 // Create a map type for our tools with correct schema and return types
 // Create a map type for our tools
-export type ToolMap = {
+export interface ToolMap {
     getKeywordsSearchVolume: ToolDefinition<KeywordsSearchVolumeParams>;
     getDomainKeywords: ToolDefinition<DomainParams>;
     getDomainLocations: ToolDefinition<DomainParams>;
-    getDomainAudit: ToolDefinition<DomainParams>;
+    createDomainAudit: ToolDefinition<AuditParams>;
+    getDomainAudit: ToolDefinition<AuditParams>;
     getLocationRankings: ToolDefinition<LocationRankingsParams>;
 };
 
 // ===== API Service Layer with Tool Definitions =====
 export class LocAIService {
-    private static BASE_URL = 'https://api.loc.ai/v1';
-
     private dataProvider: DataProvider;
 
     constructor(private apiKey: string) {
@@ -57,7 +63,7 @@ export class LocAIService {
         getKeywordsSearchVolume: {
             name: "get_keywords_search_volume",
             description: "Get search volume of given keywords in a given location_name",
-            schema: keywordsSearchVolumeSchema,
+            schema: keywordsSearchVolumeSchema.shape,
             method: async (params: KeywordsSearchVolumeParams): Promise<Record<string, number>> => {
                 console.log("getKeywordsSearchVolume", params);
                 return this.dataProvider.getKeywordsSearchVolume(params.keywords, params.location_name);
@@ -70,7 +76,7 @@ export class LocAIService {
         getDomainKeywords: {
             name: "get_domain_keywords",
             description: "Get keywords for a given domain",
-            schema: domainSchema,
+            schema: domainSchema.shape,
             method: async (params: DomainParams): Promise<DomainKeywords> => {
                 return this.dataProvider.getDomainKeywords(params.domain);
             },
@@ -82,7 +88,7 @@ export class LocAIService {
         getDomainLocations: {
             name: "get_domain_locations",
             description: "Get all locations of a given domain",
-            schema: domainSchema,
+            schema: domainSchema.shape,
             method: async (params: DomainParams): Promise<string[]> => {
                 return this.dataProvider.getDomainLocations(params.domain);
             },
@@ -91,22 +97,34 @@ export class LocAIService {
             }
         },
 
+        createDomainAudit: {
+            name: "create_domain_audit",
+            description: "Create an audit for a given domain name, keywords, and locations",
+            schema: auditSchema.shape,
+            method: async (params: z.infer<typeof auditSchema>) => {
+                return this.dataProvider.createDomainAudit(params.domain, params.keywords, params.locations);
+            },
+            formatResult: (params: z.infer<typeof auditSchema>, result: string): string => {
+                return `Audit for "${params.domain}":\n${JSON.stringify(result, null, 2)} will be available in a few moments. Check the URL in a few minutes.`;
+            }
+        },
+
         getDomainAudit: {
             name: "get_domain_audit",
             description: "Get audit of a given domain name",
-            schema: domainSchema,
-            method: async (params: DomainParams): Promise<string> => {
-                return this.dataProvider.getDomainAudit(params.domain);
+            schema: auditSchema.shape,
+            method: async (params: AuditParams) => {
+                return this.dataProvider.getDomainAudit(params.domain, params.keywords, params.locations);
             },
-            formatResult: (params: DomainParams, result: string): string => {
-                return `Audit for "${params.domain}":\n${result} will be available in a few moments. Check the URL in a few minutes.`;
+            formatResult: (params: AuditParams, result: string): string => {
+                return `Audit for "${params.domain}" is available here:\n${JSON.stringify(result, null, 2)}`;
             }
         },
 
         getLocationRankings: {
             name: "get_location_rankings",
             description: "Get rankings of a given location (all keywords for a given DMA)",
-            schema: locationRankingsSchema,
+            schema: locationRankingsSchema.shape,
             method: async (params: LocationRankingsParams): Promise<LocationKeywordRanking> => {
                 return MockDataProvider.getLocationRankings(params.location, params.dma);
             },

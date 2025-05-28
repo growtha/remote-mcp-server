@@ -9,10 +9,12 @@
 		"lint:fix": "biome lint --fix",
 		"start": "wrangler dev",
 		"cf-typegen": "wrangler types",
-		"inspector": "npx @modelcontextprotocol/inspector"
+		"inspector": "npx @modelcontextprotocol/inspector",
+		"generate:api": "openapi-typescript http://localhost:8000/openapi.json -o src/lib/growtha/schema.d.ts"
 	},
 	"devDependencies": {
 		"marked": "^15.0.7",
+		"openapi-typescript": "^7.8.0",
 		"typescript": "^5.5.2",
 		"workers-mcp": "^0.1.0-3",
 		"wrangler": "^4.2.0"
@@ -22,6 +24,7 @@
 		"@modelcontextprotocol/sdk": "^1.11.0",
 		"agents": "^0.0.79",
 		"hono": "^4.7.4",
+		"openapi-fetch": "^0.14.0",
 		"zod": "^3.24.2"
 	},
 	"packageManager": "pnpm@8.15.9+sha512.499434c9d8fdd1a2794ebf4552b3b25c0a633abcee5bb15e7b5de90f32f47b513aca98cd5cfd001c31f0db454bc3804edccd578501e4ca293a6816166bbd9f81"

@@ -1,77 +1,82 @@
-import {DomainKeywords} from "./types";
+import { createGrowthaClient, type GrowthaClient } from "./lib/growtha";
+import type { DomainKeywords } from "./types";
 
 export class DataProvider {
+	private client: GrowthaClient;
 
-    constructor(private apiKey: string) { }   
+	constructor(apiKey: string) {
+		this.client = createGrowthaClient(apiKey);
+	}
 
-    async getDomainLocations(domain: string): Promise<string[]> {
-        const response = await fetch("https://growtha-platform-g159.onrender.com/api/v1/mcp/find-locations", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json; charset=utf-8",
-                "locai-user-api-key": `${this.apiKey}`
-            },
-            body: JSON.stringify({ domain })
-        });
+	async getDomainLocations(domain: string) {
+		const { data, error } = await this.client.POST("/api/v1/mcp/find-locations", {
+			body: { domain },
+		});
 
-        if (!response.ok) {
-            throw new Error(`API error: ${response.statusText}`);
-        }
+		if (error) {
+			console.error(error);
 
-        return await response.json();
-    }
+			throw new Error(`API error: ${error.detail}`);
+		}
 
-    async getDomainAudit(domain: string): Promise<string> {
-        const response = await fetch("https://growtha-platform-g159.onrender.com/api/v1/mcp/audit", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json; charset=utf-8",
-                "locai-user-api-key": `${this.apiKey}`
-            },
-            body: JSON.stringify({ domain, in_worker: true })
-        });
+		return data;
+	}
 
-        if (!response.ok) {
-            throw new Error(`API error: ${response.statusText}`);
-        }
-        return await response.json();
-    }
+	async createDomainAudit(domain: string, keywords: string[], locations: string[] = []) {
+		const { data, error } = await this.client.POST("/api/v1/mcp/audit", {
+			body: { domain, keywords, locations, in_worker: true },
+		});
 
-    async getDomainKeywords(domain: string): Promise<DomainKeywords> {
-        const response = await fetch("https://growtha-platform-g159.onrender.com/api/v1/mcp/get-domain-industry", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json; charset=utf-8",
-                "locai-user-api-key": `${this.apiKey}`
-            },
-            body: JSON.stringify({ domain })
-        });
+		if (error) {
+			console.error(error);
 
-        if (!response.ok) {
-            throw new Error(`API error: ${response.statusText}`);
-        }
+			throw new Error(`API error: ${error.detail}`);
+		}
 
-        const data: DomainKeywords = await response.json();
-        return data;
-    }
+		return data;
+	}
 
-    async getKeywordsSearchVolume(keywords: string[], location_name: string): Promise<Record<string, number>> {
-        const response = await fetch("https://growtha-platform-g159.onrender.com/api/v1/mcp/search-volume-of-keywords", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json; charset=utf-8",
-                "locai-user-api-key": `${this.apiKey}`
-            },
-            body: JSON.stringify({
-                keywords: keywords,
-                location_name: location_name
-            })
-        });
+	async getDomainAudit(domain: string, keywords: string[], locations: string[] = []) {
+		const { data, error } = await this.client.POST("/api/v1/mcp/audit", {
+			body: { domain, keywords, locations, in_worker: true },
+		});
 
-        if (!response.ok) {
-            throw new Error(`API error: ${response.statusText}`);
-        }
+		if (error) {
+			console.error(error);
+			throw new Error(`API error: ${error.detail}`);
+		}
 
-        return await response.json()
-    }
+		return data;
+	}
+
+	async getDomainKeywords(domain: string) {
+		const { data, error } = await this.client.POST("/api/v1/mcp/get-domain-industry", {
+			body: { domain },
+		});
+
+		if (error) {
+			console.error(error);
+
+			throw new Error(`API error: ${error.detail}`);
+		}
+
+		return data as unknown as DomainKeywords;
+	}
+
+	async getKeywordsSearchVolume(
+		keywords: string[],
+		location_name: string,
+	): Promise<Record<string, number>> {
+		const { data, error } = await this.client.POST("/api/v1/mcp/search-volume-of-keywords", {
+			body: { keywords, location_name },
+		});
+
+		if (error) {
+			console.error(error);
+
+			throw new Error(`API error: ${error.detail}`);
+		}
+
+		return data;
+	}
 }

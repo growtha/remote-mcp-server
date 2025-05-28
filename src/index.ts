@@ -2,7 +2,7 @@
 import { McpAgent } from "agents/mcp";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import app from "./app";
-import { LocAIService, ToolMap } from "./methods";
+import { LocAIService, type ToolMap } from "./methods";
 
 // You may need to define this interface based on your specific environment variables
 interface Env {
@@ -20,7 +20,7 @@ export class MyMCP extends McpAgent<Env, unknown, { apiKey: string }> {
     const service = new LocAIService(this.props.apiKey);
 
     // Type-safe iteration over the tools
-    Object.keys(service.tools).forEach((key) => {
+    for (const key in service.tools) {
       const toolKey = key as keyof ToolMap;
       const tool = service.tools[toolKey];
 
@@ -44,7 +44,7 @@ export class MyMCP extends McpAgent<Env, unknown, { apiKey: string }> {
           }
         }
       );
-    });
+    };
   }
 }
 
